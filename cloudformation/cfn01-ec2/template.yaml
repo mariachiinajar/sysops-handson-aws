@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+    Infrastructure for CloudFormation hands-on for Sysops Administrator Exam
+Parameters:
+    ImageId:
+        Description: AMI for test ec2 instance provisioning with CloudFormation
+        Default: ami-0a887e401f7654935
+        Type: String
+    VpcId:
+        Description: VPC used by CF SG
+        Type: String 
+    KeyName:
+        Type: AWS::EC2::KeyPair::KeyName
+        Default: sysops
+Resources:
+    WebServer:
+        Type: AWS::EC2::Instance
+        Properties:
+            InstanceType: t2.micro
+            ImageId: !Ref ImageId
+            SecurityGroupIds:
+                - !GetAtt SecurityGroup.GroupId
+            KeyName: !Ref KeyName
+            UserData: 
+                'Fn::Base64':
+                    !Sub |
+                        #!/usr/bin/env bash
+                        yum -y update
+                        su ec2-user
+                        sudo yum install httpd -y
+                        sudo service httpd start 
+                        sudo service httpd enable
+                        
+                        # Set variables
+                        export HOSTNAME=$(hostname)
+                        export PUBLIC_IPV4=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+                        export LOCAL_IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+                        export INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+                        export INSTANCE_TYPE=$(curl http://169.254.169.254/latest/meta-data/instance-type)
+
+                        # Inject data to the index page.
+                        sudo echo "<h1>Welcome. Following is the profile of the EC2 instance you are accessing:<br></h1>" >> /var/www/html/index.html
+                        
+                        sudo echo "<h3>Instance Profile</h3>" >> /var/www/html/index.html
+                        sudo echo "Hostname:      $HOSTNAME<br>" >> /var/www/html/index.html
+                        sudo echo "Instance ID:   $INSTANCE_ID<br>" >> /var/www/html/index.html
+                        sudo echo "Instance type: $INSTANCE_TYPE<br><br>" >> /var/www/html/index.html
+                        
+                        sudo echo "Public IP:  <span style='color: red'>$PUBLIC_IPV4</span><br>" >> /var/www/html/index.html
+                        sudo echo "Private IP: <span style='color: red'>$LOCAL_IPV4</span>" >> /var/www/html/index.html
+    SecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            VpcId: !Ref VpcId
+            GroupDescription: 'Open HTTP connection port 80'
+            SecurityGroupIngress:
+            - IpProtocol: tcp
+              FromPort: 80
+              ToPort: 80
+              CidrIp: "0.0.0.0/0"
+            - IpProtocol: tcp
+              FromPort: 22
+              ToPort: 22
+              CidrIp: "211.237.245.156/32"
+              
+Outputs:
+    publicIp:
+        Value: !GetAtt WebServer.PublicIp
