@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-aws s3 cp template.yaml s3://sysops-knows-cf/template.yaml
+aws s3 cp template.yaml s3://YOUR_BUCKET_NAME/template.yaml
 
 aws cloudformation create-stack \
     --region us-east-1 \
-    --stack-name sysops-knows-cloudformation \
-    --template-url https://sysops-knows-cf.s3.amazonaws.com/template.yaml \
-    --parameters ParameterKey=VpcId,ParameterValue=vpc-0318d3970a7148fae
+    --stack-name YOUR_STACK_NAME \
+    --template-url https://YOUR_BUCKET_NAME.s3.amazonaws.com/template.yaml \
+    --parameters ParameterKey=VpcId,ParameterValue=YOUR_VPC_ID

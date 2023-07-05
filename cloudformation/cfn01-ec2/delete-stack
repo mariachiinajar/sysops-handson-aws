@@ -2,4 +2,4 @@
 
 aws cloudformation delete-stack \
     --region us-east-1 \
-    --stack-name sysops-knows-cloudformation
+    --stack-name YOUR_STACK_NAME

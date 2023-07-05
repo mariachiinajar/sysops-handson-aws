@@ -61,7 +61,7 @@ Resources:
             - IpProtocol: tcp
               FromPort: 22
               ToPort: 22
-              CidrIp: "211.237.245.156/32"
+              CidrIp: "YOUR_IP_ADDRESS/32"
               
 Outputs:
     publicIp:
