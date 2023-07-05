@@ -7,3 +7,5 @@ aws cloudformation create-stack \
     --stack-name YOUR_STACK_NAME \
     --template-url https://YOUR_BUCKET_NAME.s3.amazonaws.com/template.yaml \
     --parameters ParameterKey=VpcId,ParameterValue=YOUR_VPC_ID
+
+    
